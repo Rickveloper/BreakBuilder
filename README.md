@@ -1,6 +1,6 @@
 # BreakBuilder
 
-![Banner](assets/banner.png)
+![Banner](F1AE3538-F99D-453E-83DF-91CB734D7980.png)
 
 [![Made for iPhone](https://img.shields.io/badge/Optimized%20for-iPhone-blueviolet)](#)
 [![Speech to Text](https://img.shields.io/badge/Feature-Speech--to--Text-yellowgreen)](#)
