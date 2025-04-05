@@ -1,0 +1,31 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BreakBuilder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>BreakBuilder</h1>
+    <p class="subtext">Transcribe thoughts. Capture vibes. Export instantly.</p>
+
+    <button id="startBtn">🎙️ Start Talking</button>
+    <button id="stopBtn" disabled>⏹️ Stop</button>
+
+    <textarea id="output" placeholder="Your transcribed text will appear here..."></textarea>
+
+    <div class="actions">
+      <button id="clearBtn">🧹 Clear</button>
+      <button id="saveTxtBtn">⬇️ Save as .txt</button>
+      <button id="saveMdBtn">📝 Save as .md</button>
+    </div>
+
+    <footer>Built on your break. No backend. No bullshit.</footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
