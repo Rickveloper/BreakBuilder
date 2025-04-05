@@ -43,7 +43,7 @@ stopBtn.onclick = () => {
   startBtn.disabled = false;
   stopBtn.disabled = true;
 };
-
+j
 document.getElementById('clearBtn').onclick = () => {
   output.value = '';
 };
@@ -65,3 +65,4 @@ function downloadFile(content, filename) {
   a.setAttribute('download', filename);
   a.click();
 }
+
