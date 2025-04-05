@@ -1,6 +1,6 @@
 # BreakBuilder
 
-![Banner](A_retro-styled_digital_illustration_banner_for_an_.png)
+![Banner]1BDC7A31-4643-459D-9207-ED3277BCF4DE.png
 
 [![Made for iPhone](https://img.shields.io/badge/Optimized%20for-iPhone-blueviolet)](#)
 [![Speech to Text](https://img.shields.io/badge/Feature-Speech--to--Text-yellowgreen)](#)
