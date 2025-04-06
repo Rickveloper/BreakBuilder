@@ -1,92 +1,95 @@
-// script.js
+const transcript = document.getElementById("transcript");
 let recognition;
-let finalTranscript = '';
-const output = document.getElementById('output');
-const startBtn = document.getElementById('startBtn');
-const stopBtn = document.getElementById('stopBtn');
+let isRecording = false;
 
-if ('webkitSpeechRecognition' in window) {
+if ("webkitSpeechRecognition" in window) {
   recognition = new webkitSpeechRecognition();
   recognition.continuous = true;
-  recognition.interimResults = true;
-  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.lang = "en-US";
 
-  recognition.onresult = function (event) {
-    let interim = '';
+  recognition.onresult = (event) => {
     for (let i = event.resultIndex; i < event.results.length; ++i) {
       if (event.results[i].isFinal) {
-        finalTranscript += event.results[i][0].transcript;
-      } else {
-        interim += event.results[i][0].transcript;
+        transcript.value += event.results[i][0].transcript + " ";
       }
     }
-    output.value = finalTranscript + interim;
   };
 
-  recognition.onerror = function (event) {
-    console.error('Speech recognition error:', event.error);
+  document.getElementById("start").onclick = () => {
+    if (!isRecording) {
+      recognition.start();
+      isRecording = true;
+    }
+  };
+
+  document.getElementById("stop").onclick = () => {
+    if (isRecording) {
+      recognition.stop();
+      isRecording = false;
+    }
   };
 } else {
-  alert('Speech recognition not supported on this browser.');
+  alert("Speech recognition not supported on this browser.");
 }
 
-startBtn.onclick = () => {
-  finalTranscript = '';
-  output.value = '';
-  recognition.start();
-  startBtn.disabled = true;
-  stopBtn.disabled = false;
+document.getElementById("clear").onclick = () => {
+  transcript.value = "";
 };
 
-stopBtn.onclick = () => {
-  recognition.stop();
-  startBtn.disabled = false;
-  stopBtn.disabled = true;
-};
-j
-document.getElementById('clearBtn').onclick = () => {
-  output.value = '';
+document.getElementById("saveTxt").onclick = () => {
+  const blob = new Blob([transcript.value], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "break.txt";
+  link.click();
 };
 
-document.getElementById('saveTxtBtn').onclick = () => {
-  downloadFile(output.value, 'breakbuilder-transcript.txt');
+document.getElementById("saveMd").onclick = () => {
+  const blob = new Blob([transcript.value], { type: "text/markdown" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "break.md";
+  link.click();
 };
 
-document.getElementById('saveMdBtn').onclick = () => {
-  const md = `# BreakBuilder Transcript\n\n${output.value}`;
-  downloadFile(md, 'breakbuilder-transcript.md');
-};
-
-function downloadFile(content, filename) {
-  const blob = new Blob([content], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.setAttribute('href', url);
-  a.setAttribute('download', filename);
-  a.click();
-}
+// Image generation with DeepAI
 document.getElementById("generateImage").addEventListener("click", async () => {
-    const text = document.getElementById("transcript").value;
-    const apiKey = ""; // <-- INSERT YOUR DEEPAI API KEY HERE
+  const text = transcript.value.trim();
+  const apiKey = ""; // <<< INSERT YOUR DEEPAI API KEY HERE
 
-    if (!apiKey) {
-        alert("Missing DeepAI API key. Edit script.js to add yours.");
-        return;
-    }
+  if (!apiKey) {
+    alert("Missing DeepAI API key. Edit script.js to add yours.");
+    return;
+  }
 
-    const res = await fetch("https://api.deepai.org/api/text2img", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "api-key": apiKey
-        },
-        body: `text=${encodeURIComponent(text)}`
-    });
+  if (!text) {
+    alert("Enter or speak some text first.");
+    return;
+  }
 
-    const data = await res.json();
-    if (data.output_url) {
-        document.getElementById("imageContainer").innerHTML = `<img src="${data.output_url}" alt="Generated Image" style="max-width:100%;margin-top:10px;border-radius:8px;" />`;
-    } else {
-        alert("Failed to generate image. Try again.");
-    }
+  const res = await fetch("https://api.deepai.org/api/text2img", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "api-key": apiKey
+    },
+    body: `text=${encodeURIComponent(text)}`
+  });
+
+  const data = await res.json();
+  const imgDiv = document.getElementById("imageContainer");
+  imgDiv.innerHTML = "";
+
+  if (data.output_url) {
+    const img = document.createElement("img");
+    img.src = data.output_url;
+    img.alt = "Generated Image";
+    img.style.maxWidth = "100%";
+    img.style.marginTop = "10px";
+    img.style.borderRadius = "8px";
+    imgDiv.appendChild(img);
+  } else {
+    imgDiv.textContent = "Failed to generate image.";
+  }
 });
