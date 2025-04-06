@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,23 +7,26 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>BreakBuilder</h1>
-    <p class="subtext">Transcribe thoughts. Capture vibes. Export instantly.</p>
+  <h1><span class="rainbow">BreakBuilder</span></h1>
+  <p>Transcribe thoughts. Capture vibes.<br>Export instantly.</p>
 
-    <button id="startBtn">🎙️ Start Talking</button>
-    <button id="stopBtn" disabled>⏹️ Stop</button>
-
-    <textarea id="output" placeholder="Your transcribed text will appear here..."></textarea>
-
-    <div class="actions">
-      <button id="clearBtn">🧹 Clear</button>
-      <button id="saveTxtBtn">⬇️ Save as .txt</button>
-      <button id="saveMdBtn">📝 Save as .md</button>
-    </div>
-
-    <footer>Built on your break. No backend. No bullshit.</footer>
+  <div class="controls">
+    <button id="start">🎙️ Start Talking</button>
+    <button id="stop">⏹️ Stop</button>
   </div>
+
+  <textarea id="transcript" placeholder="Your thoughts appear here..."></textarea>
+
+  <div class="actions">
+    <button id="clear">🧹 Clear</button>
+    <button id="saveTxt">⬇️ Save as .txt</button>
+    <button id="saveMd">📝 Save as .md</button>
+    <button id="generateImage">🎨 Inspire Me</button>
+  </div>
+
+  <div id="imageContainer"></div>
+
+  <footer>Built on your break. No backend. No bullshit.</footer>
 
   <script src="script.js"></script>
 </body>
