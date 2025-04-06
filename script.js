@@ -1,105 +1,66 @@
+// Speech Recognition
+const startBtn = document.getElementById("start");
+const stopBtn = document.getElementById("stop");
 const transcript = document.getElementById("transcript");
+
 let recognition;
-let isRecording = false;
-
-// Check if speech recognition is supported
-window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-if (window.SpeechRecognition) {
-  recognition = new SpeechRecognition();
+if ("webkitSpeechRecognition" in window) {
+  recognition = new webkitSpeechRecognition();
   recognition.continuous = true;
-  recognition.lang = "en-US";
+  recognition.interimResults = false;
 
   recognition.onresult = (event) => {
-    let result = "";
-    for (let i = event.resultIndex; i < event.results.length; ++i) {
-      result += event.results[i][0].transcript;
-    }
+    const result = event.results[event.results.length - 1][0].transcript;
     transcript.value += result + " ";
   };
 
-  document.getElementById("start").onclick = () => {
-    if (!isRecording) {
-      recognition.start();
-      isRecording = true;
-    }
-  };
-
-  document.getElementById("stop").onclick = () => {
-    if (isRecording) {
-      recognition.stop();
-      isRecording = false;
-    }
-  };
+  startBtn.onclick = () => recognition.start();
+  stopBtn.onclick = () => recognition.stop();
 } else {
-  document.getElementById("start").disabled = true;
-  document.getElementById("stop").disabled = true;
-  alert("Speech recognition is not supported in this browser.");
+  transcript.value = "Speech Recognition not supported.";
 }
 
-// Save buttons
+// Clear
 document.getElementById("clear").onclick = () => {
   transcript.value = "";
 };
 
+// Save .txt
 document.getElementById("saveTxt").onclick = () => {
   const blob = new Blob([transcript.value], { type: "text/plain" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "break.txt";
+  link.download = "transcript.txt";
   link.click();
 };
 
+// Save .md
 document.getElementById("saveMd").onclick = () => {
   const blob = new Blob([transcript.value], { type: "text/markdown" });
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
-  link.download = "break.md";
+  link.download = "transcript.md";
   link.click();
 };
 
-// Image generation
-document.getElementById("generateImage").addEventListener("click", async () => {
-  const text = transcript.value.trim();
-  const apiKey = ""; // <--- Insert your DeepAI API key here
+// Generate Image
+document.getElementById("generateImage").onclick = async () => {
+  const prompt = transcript.value.trim();
+  if (!prompt) return alert("Enter or say something first.");
 
-  if (!apiKey) {
-    alert("Missing DeepAI API key. Edit script.js to add yours.");
-    return;
-  }
+  const response = await fetch("https://api.deepai.org/api/text2img", {
+    method: "POST",
+    headers: {
+      "Api-Key": "YOUR_DEEPAI_API_KEY"
+    },
+    body: new URLSearchParams({ text: prompt })
+  });
 
-  if (!text) {
-    alert("Say or type something first!");
-    return;
-  }
-
-  try {
-    const res = await fetch("https://api.deepai.org/api/text2img", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        "api-key": apiKey
-      },
-      body: `text=${encodeURIComponent(text)}`
-    });
-
-    const data = await res.json();
-    const imgDiv = document.getElementById("imageContainer");
-    imgDiv.innerHTML = "";
-
-    if (data.output_url) {
-      const img = document.createElement("img");
-      img.src = data.output_url;
-      img.alt = "Generated Image";
-      img.style.maxWidth = "100%";
-      img.style.marginTop = "10px";
-      img.style.borderRadius = "8px";
-      imgDiv.appendChild(img);
-    } else {
-      imgDiv.textContent = "Image generation failed. Try again later.";
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Error generating image. Check console.");
-  }
-});
+  const data = await response.json();
+  const img = document.createElement("img");
+  img.src = data.output_url;
+  img.alt = "Generated";
+  img.style.maxWidth = "100%";
+  document.getElementById("imageContainer").innerHTML = "";
+  document.getElementById("imageContainer").appendChild(img);
+};
