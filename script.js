@@ -65,4 +65,28 @@ function downloadFile(content, filename) {
   a.setAttribute('download', filename);
   a.click();
 }
+document.getElementById("generateImage").addEventListener("click", async () => {
+    const text = document.getElementById("transcript").value;
+    const apiKey = ""; // <-- INSERT YOUR DEEPAI API KEY HERE
 
+    if (!apiKey) {
+        alert("Missing DeepAI API key. Edit script.js to add yours.");
+        return;
+    }
+
+    const res = await fetch("https://api.deepai.org/api/text2img", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "api-key": apiKey
+        },
+        body: `text=${encodeURIComponent(text)}`
+    });
+
+    const data = await res.json();
+    if (data.output_url) {
+        document.getElementById("imageContainer").innerHTML = `<img src="${data.output_url}" alt="Generated Image" style="max-width:100%;margin-top:10px;border-radius:8px;" />`;
+    } else {
+        alert("Failed to generate image. Try again.");
+    }
+});
