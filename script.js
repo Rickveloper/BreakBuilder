@@ -2,18 +2,20 @@ const transcript = document.getElementById("transcript");
 let recognition;
 let isRecording = false;
 
-if ("webkitSpeechRecognition" in window) {
-  recognition = new webkitSpeechRecognition();
+// Check if speech recognition is supported
+window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (window.SpeechRecognition) {
+  recognition = new SpeechRecognition();
   recognition.continuous = true;
-  recognition.interimResults = false;
   recognition.lang = "en-US";
 
   recognition.onresult = (event) => {
+    let result = "";
     for (let i = event.resultIndex; i < event.results.length; ++i) {
-      if (event.results[i].isFinal) {
-        transcript.value += event.results[i][0].transcript + " ";
-      }
+      result += event.results[i][0].transcript;
     }
+    transcript.value += result + " ";
   };
 
   document.getElementById("start").onclick = () => {
@@ -30,9 +32,12 @@ if ("webkitSpeechRecognition" in window) {
     }
   };
 } else {
-  alert("Speech recognition not supported on this browser.");
+  document.getElementById("start").disabled = true;
+  document.getElementById("stop").disabled = true;
+  alert("Speech recognition is not supported in this browser.");
 }
 
+// Save buttons
 document.getElementById("clear").onclick = () => {
   transcript.value = "";
 };
@@ -53,10 +58,10 @@ document.getElementById("saveMd").onclick = () => {
   link.click();
 };
 
-// Image generation with DeepAI
+// Image generation
 document.getElementById("generateImage").addEventListener("click", async () => {
   const text = transcript.value.trim();
-  const apiKey = ""; // <<< INSERT YOUR DEEPAI API KEY HERE
+  const apiKey = ""; // <--- Insert your DeepAI API key here
 
   if (!apiKey) {
     alert("Missing DeepAI API key. Edit script.js to add yours.");
@@ -64,32 +69,37 @@ document.getElementById("generateImage").addEventListener("click", async () => {
   }
 
   if (!text) {
-    alert("Enter or speak some text first.");
+    alert("Say or type something first!");
     return;
   }
 
-  const res = await fetch("https://api.deepai.org/api/text2img", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "api-key": apiKey
-    },
-    body: `text=${encodeURIComponent(text)}`
-  });
+  try {
+    const res = await fetch("https://api.deepai.org/api/text2img", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "api-key": apiKey
+      },
+      body: `text=${encodeURIComponent(text)}`
+    });
 
-  const data = await res.json();
-  const imgDiv = document.getElementById("imageContainer");
-  imgDiv.innerHTML = "";
+    const data = await res.json();
+    const imgDiv = document.getElementById("imageContainer");
+    imgDiv.innerHTML = "";
 
-  if (data.output_url) {
-    const img = document.createElement("img");
-    img.src = data.output_url;
-    img.alt = "Generated Image";
-    img.style.maxWidth = "100%";
-    img.style.marginTop = "10px";
-    img.style.borderRadius = "8px";
-    imgDiv.appendChild(img);
-  } else {
-    imgDiv.textContent = "Failed to generate image.";
+    if (data.output_url) {
+      const img = document.createElement("img");
+      img.src = data.output_url;
+      img.alt = "Generated Image";
+      img.style.maxWidth = "100%";
+      img.style.marginTop = "10px";
+      img.style.borderRadius = "8px";
+      imgDiv.appendChild(img);
+    } else {
+      imgDiv.textContent = "Image generation failed. Try again later.";
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error generating image. Check console.");
   }
 });
